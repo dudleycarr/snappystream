@@ -8,6 +8,7 @@ details.
 
 [![Build Status](https://travis-ci.org/dudleycarr/snappystream.png?branch=master)](https://travis-ci.org/dudleycarr/snappystream)
 
+
 [![NPM](https://nodei.co/npm/snappystream.png?downloads=true)](https://nodei.co/npm/snappystream/)
 
 Usage:
