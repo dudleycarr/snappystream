@@ -100,7 +100,7 @@ class UnsnappyStream extends stream.Transform
     chunks = []
 
     data = new Buffer data, encoding if encoding
-    data = Buffer.concact [@frameBuffer, data] if @frameBuffer
+    data = Buffer.concat [@frameBuffer, data] if @frameBuffer
     @frameBuffer = null
 
     unless @identifierFound or data.readUInt8(0) is CHUNKS.streamIdentifier
