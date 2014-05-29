@@ -14,7 +14,7 @@ Usage:
 SnappyStream and UnsnappyStream are
 [Transform streams](http://nodejs.org/api/stream.html#stream_class_stream_transform).
 
-```
+```javascript
 var SnappyStream = require('snappystream').SnappyStream;
 
 var in = fs.createReadStream('snappy.txt');
@@ -27,7 +27,7 @@ in.pipe(snappyStream).pipe(out);
 UnsnappyStream constructor takes an optional argument ```verifyChecksums```
 which is false by default.
 
-```
+```javascript
 var SnappyStream = require('snappysteam').UnsnappyStream;
 
 var in = fs.createReadStream('snappy_frame.txt');
