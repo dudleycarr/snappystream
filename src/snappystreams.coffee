@@ -41,13 +41,14 @@ class SnappyStream extends stream.Transform
       out[start...end]
 
     async.map dataChunks, snappy.compress, (err, compressedDataChunks) =>
-      frameChunks = []
+      return callback err if err
 
+      frameChunks = []
       for frameData in compressedDataChunks
         frameStart = new Buffer 8
         frameStart.writeUInt8 CHUNKS.compressedData, 0
         int24.writeUInt24LE frameStart, 1, frameData.length + 4
-        frameStart.writeUInt32LE checksumMask(frameData), 4
+        frameStart.writeUInt32LE checksumMask(frameData), 4, true
 
         frameChunks.push frameStart
         frameChunks.push frameData
