@@ -89,7 +89,7 @@ class UnsnappyStream extends stream.Transform
   processChunks: (chunks, done) ->
     uncompressChunk = (chunk, cb) ->
       return cb null, chunk[1] if chunk[0] is CHUNKS.uncompressedData
-      snappy.decompress chunk[1], null, cb
+      snappy.uncompress chunk[1], cb
 
     async.map chunks, uncompressChunk, (err, data) =>
       return @emit 'error', err if err

@@ -8,23 +8,29 @@ STREAM_IDENTIFIER = new Buffer [0xff, 0x06, 0x00, 0x00, 0x73, 0x4e, 0x61, 0x50,
 
 describe 'UnsnappyStream', ->
   data = 'uncompressed frame data'
-  compressedData = snappy.compressSync data
+  compressedData = null
   validChecksum = 0xa3051056
   stream = null
   frame = null
 
-  beforeEach ->
-    stream = new UnsnappyStream()
+  beforeEach (done) ->
+    snappy.compress data, (err, snappyData) ->
+      return done err if err
 
-    frame = new Buffer 8
-    # Frame ID
-    frame.writeUInt8 0x00, 0
-    # Frame payload length
-    int24.writeUInt24LE frame, 1, 4 + compressedData.length
-    # Checksum (invalid)
-    frame.writeUInt32LE 0x00, 4
-    # Frame with payload
-    frame = Buffer.concat [frame, compressedData]
+      compressedData = snappyData
+      stream = new UnsnappyStream()
+
+      frame = new Buffer 8
+      # Frame ID
+      frame.writeUInt8 0x00, 0
+      # Frame payload length
+      int24.writeUInt24LE frame, 1, 4 + compressedData.length
+      # Checksum (invalid)
+      frame.writeUInt32LE 0x00, 4
+      # Frame with payload
+      frame = Buffer.concat [frame, compressedData]
+
+      done()
 
   describe 'framePayload', ->
     it 'unpack a frame without failing checksum check', ->

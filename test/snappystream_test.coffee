@@ -9,7 +9,10 @@ compress = (data, callback) ->
   compressor = new SnappyStream()
 
   compressor.on 'readable', ->
-    compressedFrames = Buffer.concat [compressedFrames, compressor.read()]
+    data = compressor.read()
+    return unless data
+
+    compressedFrames = Buffer.concat [compressedFrames, data]
   compressor.on 'end', ->
     callback null, compressedFrames
 
@@ -38,12 +41,15 @@ describe 'SnappyStream', ->
   describe 'single compressed frame', ->
     data = 'test'
     compressedFrames = null
-    compressedData = snappy.compressSync data
+    compressedData = null
 
     before (done) ->
-      compress data, (err, out) ->
-        compressedFrames = out[10..]
-        done()
+      snappy.compress data, (err, snappyData) ->
+        compressedData = snappyData
+
+        compress data, (err, out) ->
+          compressedFrames = out[10..]
+          done()
 
     it 'should start with the compressed data chunk ID', ->
       compressedFrames.readUInt8(0).should.eql 0x00
@@ -57,9 +63,12 @@ describe 'SnappyStream', ->
     it 'should have a valid checksum mask', ->
       compressedFrames.readUInt32LE(4).should.eql 0x3239074d
 
-    it 'should have match decompressed data', ->
+    it 'should have match decompressed data', (done) ->
       payload = compressedFrames[8..]
-      snappy.decompressSync(payload).toString().should.eql data
+      snappy.uncompress payload, {asBuffer: false},
+        (err, uncompressedPayload) ->
+          uncompressedPayload.should.eql data
+          done()
 
   describe 'multiple compressed frames', ->
     # Two frames worth of data.
@@ -74,23 +83,31 @@ describe 'SnappyStream', ->
     it 'should have the first chunk start with a compressed data chunk ID', ->
       compressedFrames.readUInt8(0).should.eql 0x00
 
-    it 'should have the 1st chunk with an uncompressed size of 65,536', ->
-      frameSize = int24.readUInt24LE compressedFrames, 1
-      compressedData = compressedFrames[8...frameSize+4]
-      frameData = snappy.decompressSync compressedData
+    it 'should have the 1st chunk with an uncompressed size of 65,536',
+      (done) ->
+        frameSize = int24.readUInt24LE compressedFrames, 1
+        compressedData = compressedFrames[8...frameSize+4]
 
-      frameData.length.should.eql 65536
-      frameData.toString().should.eql data[...65536]
+        snappy.uncompress compressedData, (err, frameData) ->
+          return done err if err
+
+          frameData.length.should.eql 65536
+          frameData.toString().should.eql data[...65536]
+          done()
 
     it 'should have the 2nd chunk start with a compressed data chunk ID', ->
       compressedFrames.readUInt8(3085).should.eql 0x00
 
-    it 'should have the 2nd chunk with an uncompressed size of 34,464', ->
-      secondFrame = compressedFrames[3085..]
-      frameSize = int24.readUInt24LE secondFrame, 1
+    it 'should have the 2nd chunk with an uncompressed size of 34,464',
+      (done) ->
+        secondFrame = compressedFrames[3085..]
+        frameSize = int24.readUInt24LE secondFrame, 1
 
-      frameSize.should.eql secondFrame.length - 4
+        frameSize.should.eql secondFrame.length - 4
 
-      frameData = snappy.decompressSync secondFrame[8..]
-      frameData.toString().should.eql data[65536..]
+        snappy.uncompress secondFrame[8..], {asBuffer: false},
+          (err, frameData) ->
+            return done err if err
 
+            frameData.should.eql data[65536..]
+            done()
