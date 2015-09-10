@@ -1,6 +1,6 @@
 {
   "name": "snappystream",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Framed Snappy streams",
   "main": "lib/snappystreams.js",
   "scripts": {
@@ -26,10 +26,10 @@
   "homepage": "https://github.com/dudleycarr/snappystream",
   "dependencies": {
     "coffee-script": "^1.7.1",
-    "sse4_crc32": "^2.1.2",
-    "snappy": "^3.0.7",
+    "sse4_crc32": "^4.0.1",
+    "snappy": "git+https://github.com/dudleycarr/node-snappy",
     "int24": "0.0.1",
-    "async": "^0.9.0"
+    "async": "^1.4.2"
   },
   "devDependencies": {
     "mocha": "^1.19.0",
