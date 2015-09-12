@@ -26,7 +26,7 @@
   "homepage": "https://github.com/dudleycarr/snappystream",
   "dependencies": {
     "coffee-script": "^1.7.1",
-    "sse4_crc32": "^4.0.1",
+    "sse4_crc32": "git+https://github.com/dudleycarr/sse4_crc32",
     "snappy": "git+https://github.com/dudleycarr/node-snappy",
     "int24": "0.0.1",
     "async": "^1.4.2"
