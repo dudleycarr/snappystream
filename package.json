@@ -25,11 +25,11 @@
   },
   "homepage": "https://github.com/dudleycarr/snappystream",
   "dependencies": {
+    "async": "^1.4.2",
     "coffee-script": "^1.7.1",
-    "sse4_crc32": "git+https://github.com/dudleycarr/sse4_crc32",
-    "snappy": "git+https://github.com/dudleycarr/node-snappy",
     "int24": "0.0.1",
-    "async": "^1.4.2"
+    "snappy": "^4.0.3",
+    "sse4_crc32": "^4.1.1"
   },
   "devDependencies": {
     "mocha": "^1.19.0",
