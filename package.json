@@ -1,6 +1,6 @@
 {
   "name": "snappystream",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "Framed Snappy streams",
   "main": "lib/snappystreams.js",
   "scripts": {
