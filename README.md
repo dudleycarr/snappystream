@@ -18,27 +18,27 @@ SnappyStream and UnsnappyStream are
 [Transform streams](http://nodejs.org/api/stream.html#stream_class_stream_transform).
 
 ```javascript
-var SnappyStream = require('snappystream').SnappyStream;
+const {SnappyStream} = require('snappystream')
 
-var in = fs.createReadStream('snappy.txt');
-var snappyStream = new SnappyStream();
-var out = fs.createWriteStream('snappy_frame.txt')
+const in = fs.createReadStream('snappy.txt')
+const snappyStream = new SnappyStream()
+const out = fs.createWriteStream('snappy_frame.txt')
 
-in.pipe(snappyStream).pipe(out);
+in.pipe(snappyStream).pipe(out)
 ```
 
 UnsnappyStream constructor takes an optional argument ```verifyChecksums```
 which is false by default.
 
 ```javascript
-var SnappyStream = require('snappysteam').UnsnappyStream;
+const {UnsnappyStream} = require('snappysteam')
 
-var in = fs.createReadStream('snappy_frame.txt');
-var unsnappyStream = new UnsnappyStream(true);
+const in = fs.createReadStream('snappy_frame.txt')
+const unsnappyStream = new UnsnappyStream(true)
 
 unsnappyStream.on('end', function() {
-  console.log(unsnappyStream.read());
-});
+  console.log(unsnappyStream.read())
+})
 
-in.pipe(unsnappyStream);
+in.pipe(unsnappyStream)
 ```
