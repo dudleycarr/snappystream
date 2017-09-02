@@ -27,7 +27,7 @@
   "dependencies": {
     "async": "^2.1.4",
     "int24": "0.0.1",
-    "snappy": "^5.0.5",
+    "snappy": "^6.0.0",
     "sse4_crc32": "^5.1.1"
   },
   "devDependencies": {
