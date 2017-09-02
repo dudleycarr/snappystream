@@ -8,7 +8,7 @@ Description](https://github.com/google/snappy/blob/master/framing_format.txt) fo
 details.
 
 [![Greenkeeper badge](https://badges.greenkeeper.io/dudleycarr/snappystream.svg)](https://greenkeeper.io/)
-[![Build Status](https://travis-ci.org/dudleycarr/snappystream.png?branch=master)](https://travis-ci.org/dudleycarr/snappystream)
+[![Build Status](https://travis-ci.org/dudleycarr/snappystream.svg?branch=master)](https://travis-ci.org/dudleycarr/snappystream)
 
 
 [![NPM](https://nodei.co/npm/snappystream.png?downloads=true)](https://nodei.co/npm/snappystream/)
