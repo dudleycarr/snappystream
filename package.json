@@ -1,13 +1,10 @@
 {
   "name": "snappystream",
-  "version": "0.3.4",
+  "version": "0.4.0",
   "description": "Framed Snappy streams",
   "main": "lib/snappystreams.js",
   "scripts": {
-    "build": "coffee --bare --compile --output lib src/*.coffee",
-    "prepublish": "coffee --bare --compile --output lib src/*.coffee",
-    "postpublish": "rm -rf lib",
-    "test": "grunt test"
+    "test": "mocha -R spec -b"
   },
   "repository": {
     "type": "git",
@@ -31,15 +28,13 @@
     "sse4_crc32": "^5.1.1"
   },
   "devDependencies": {
-    "coffee-script": "^1.7.1",
-    "grunt": "^1.0.0",
-    "grunt-coffeelint": "^0.0.16",
-    "grunt-contrib-coffee": "^1.0.0",
-    "grunt-mocha-test": "^0.13.2",
     "mocha": "^3.2",
     "should": "^12.0.0"
   },
-  "files": [
-    "lib/"
-  ]
+  "standard": {
+    "env": [
+      "mocha",
+      "should"
+    ]
+  }
 }
