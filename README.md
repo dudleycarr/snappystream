@@ -1,5 +1,7 @@
 snappystream
 ===========
+
+[![Greenkeeper badge](https://badges.greenkeeper.io/dudleycarr/snappystream.svg)](https://greenkeeper.io/)
 A NodeJS library for supporting the
 [Snappy](https://code.google.com/p/snappy/) framing format via streams. See
 the [Snappy Framing Format
