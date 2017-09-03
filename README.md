@@ -19,12 +19,13 @@ SnappyStream and UnsnappyStream are
 
 ```javascript
 const {SnappyStream} = require('snappystream')
+const fs = require('fs')
 
-const in = fs.createReadStream('snappy.txt')
+const inStream = fs.createReadStream('snappy.txt')
 const snappyStream = new SnappyStream()
-const out = fs.createWriteStream('snappy_frame.txt')
+const outStream = fs.createWriteStream('snappy_frame.txt')
 
-in.pipe(snappyStream).pipe(out)
+inStream.pipe(snappyStream).pipe(outStream)
 ```
 
 UnsnappyStream constructor takes an optional argument ```verifyChecksums```
@@ -32,13 +33,14 @@ which is false by default.
 
 ```javascript
 const {UnsnappyStream} = require('snappysteam')
+const fs = require('fs')
 
-const in = fs.createReadStream('snappy_frame.txt')
+const inStream = fs.createReadStream('snappy_frame.txt')
 const unsnappyStream = new UnsnappyStream(true)
 
 unsnappyStream.on('end', function() {
   console.log(unsnappyStream.read())
 })
 
-in.pipe(unsnappyStream)
+inStream.pipe(unsnappyStream)
 ```
