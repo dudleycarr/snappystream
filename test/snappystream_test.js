@@ -3,6 +3,9 @@ const int24 = require('int24')
 const snappy = require('snappy')
 const { SnappyStream } = require('../lib/snappystreams')
 
+const sentence = 'the quick brown fox jumped over the lazy dog.'
+const txt = [sentence, sentence, sentence].join('\n')
+
 // Generate a snappy stream from data. Return the snappy stream as a string.
 function compress (data, callback) {
   let compressedFrames = Buffer.alloc(0)
@@ -26,12 +29,12 @@ describe('SnappyStream', () => {
   describe('stream identifer', () => {
     let compressedFrames = null
 
-    before(done =>
-      compress('test', (err, data) => {
+    before(done => {
+      compress(txt, (err, data) => {
         compressedFrames = data
         return done(err)
       })
-    )
+    })
 
     it('should have the stream identifier chunk ID', () =>
       compressedFrames.readUInt8(0).should.eql(0xff))
@@ -47,16 +50,15 @@ describe('SnappyStream', () => {
   })
 
   describe('single compressed frame', () => {
-    const data = 'test'
     let compressedFrames = null
     let compressedData = null
 
     before(done =>
-      snappy.compress(data, (err, snappyData) => {
+      snappy.compress(txt, (err, snappyData) => {
         if (err) { return done(err) }
         compressedData = snappyData
 
-        return compress(data, (err, out) => {
+        return compress(txt, (err, out) => {
           compressedFrames = out.slice(10)
           return done(err)
         })
@@ -74,13 +76,13 @@ describe('SnappyStream', () => {
     })
 
     it('should have a valid checksum mask', () =>
-      compressedFrames.readUInt32LE(4).should.eql(0x3239074d))
+      compressedFrames.readUInt32LE(4).should.eql(0xa2825e6b))
 
     return it('should have match decompressed data', done => {
       const payload = compressedFrames.slice(8)
       return snappy.uncompress(payload, { asBuffer: false },
         (err, uncompressedPayload) => {
-          uncompressedPayload.should.eql(data)
+          uncompressedPayload.should.eql(txt)
           return done(err)
         })
     })

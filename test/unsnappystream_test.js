@@ -106,7 +106,7 @@ describe('UnsnappyStream', () => {
 
   describe('processChunks', () => {
     it('should return decompressed data for compressed chunks', done => {
-      const chunks = [[0x00, compressedData], [0x00, compressedData]]
+      const chunks = [[0x00, null, compressedData], [0x00, null, compressedData]]
       return stream.processChunks(chunks, () => {
         stream.read().should.eql(Buffer.from(data + data))
         return done()
@@ -114,7 +114,7 @@ describe('UnsnappyStream', () => {
     })
     return it('should return decompressed data for multiple of chunks types',
       done => {
-        const chunks = [[0x00, compressedData], [0x01, Buffer.from('hello world')]]
+        const chunks = [[0x00, null, compressedData], [0x01, null, Buffer.from('hello world')]]
         return stream.processChunks(chunks, () => {
           stream.read().should.eql(Buffer.from(data + 'hello world'))
           return done()
