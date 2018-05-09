@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "mocha": "^5.1.1",
-    "should": "^12.0.0"
+    "should": "^13.2.1"
   },
   "standard": {
     "env": [
