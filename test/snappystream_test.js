@@ -76,7 +76,7 @@ describe('SnappyStream', () => {
     })
 
     it('should have a valid checksum mask', () =>
-      compressedFrames.readUInt32LE(4).should.eql(0x70ed9df2))
+      compressedFrames.readUInt32LE(4).should.eql(0x63885e6b))
 
     return it('should have match decompressed data', done => {
       const payload = compressedFrames.slice(8)
