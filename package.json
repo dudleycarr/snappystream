@@ -23,7 +23,7 @@
   "homepage": "https://github.com/dudleycarr/snappystream",
   "dependencies": {
     "async": "^2.6.3",
-    "fast-crc32c": "^1.0.4",
+    "fast-crc32c": "^2.0.0",
     "int24": "0.0.1",
     "snappy": "^6.2.3"
   },
