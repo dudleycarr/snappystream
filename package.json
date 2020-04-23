@@ -25,7 +25,7 @@
     "async": "^2.6.3",
     "fast-crc32c": "^1.0.4",
     "int24": "0.0.1",
-    "snappy": "^6.2.3"
+    "snappy": "^6.3.4"
   },
   "devDependencies": {
     "mocha": "^5.2.0",
