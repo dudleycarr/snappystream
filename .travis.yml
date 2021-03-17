@@ -3,11 +3,11 @@ os:
   - linux
   - osx
 node_js:
-  - 6
-  - 8
   - 10
+  - 12
+  - 14
+  - 15
 language: node_js
 install:
   - npm install
-  - npm install -g grunt-cli
 script: npm test
