@@ -1,4 +1,5 @@
 module.exports = {
+  es6: true,
   env: {
     node: true,
   },
