@@ -7,7 +7,6 @@ the [Snappy Framing Format
 Description](https://github.com/google/snappy/blob/master/framing_format.txt) for
 details.
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/dudleycarr/snappystream.svg)](https://greenkeeper.io/)
 [![Build Status](https://travis-ci.org/dudleycarr/snappystream.svg?branch=master)](https://travis-ci.org/dudleycarr/snappystream)
 
 
