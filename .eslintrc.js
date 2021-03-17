@@ -15,9 +15,9 @@ module.exports = {
     after: false,
     afterEach: false,
     before: false,
-    browser: false,
     describe: false,
     beforeEach: false,
     it: false,
+    expect: false,
   },
 }
