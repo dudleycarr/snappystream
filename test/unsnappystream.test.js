@@ -3,16 +3,7 @@ const snappy = require('snappy')
 const {SnappyStream, UnsnappyStream} = require('../lib/snappystreams')
 
 const STREAM_IDENTIFIER = Buffer.from([
-  0xff,
-  0x06,
-  0x00,
-  0x00,
-  0x73,
-  0x4e,
-  0x61,
-  0x50,
-  0x70,
-  0x59,
+  0xff, 0x06, 0x00, 0x00, 0x73, 0x4e, 0x61, 0x50, 0x70, 0x59,
 ])
 
 describe('UnsnappyStream', () => {
@@ -110,25 +101,21 @@ describe('UnsnappyStream', () => {
   })
 
   describe('processChunks', () => {
-    it('should return decompressed data for compressed chunks', (done) => {
+    it('should return decompressed data for compressed chunks', async () => {
       const chunks = [
         [0x00, null, compressedData],
         [0x00, null, compressedData],
       ]
-      return stream.processChunks(chunks, () => {
-        expect(stream.read()).toEqual(Buffer.from(data + data))
-        return done()
-      })
+      await stream.processChunks(chunks)
+      expect(stream.read()).toEqual(Buffer.from(data + data))
     })
-    it('should return decompressed data for multiple of chunks types', (done) => {
+    it('should return decompressed data for multiple of chunks types', async () => {
       const chunks = [
         [0x00, null, compressedData],
         [0x01, null, Buffer.from('hello world')],
       ]
-      return stream.processChunks(chunks, () => {
-        expect(stream.read()).toEqual(Buffer.from(data + 'hello world'))
-        return done()
-      })
+      await stream.processChunks(chunks)
+      expect(stream.read()).toEqual(Buffer.from(data + 'hello world'))
     })
   })
 
@@ -140,7 +127,7 @@ describe('UnsnappyStream', () => {
         return done()
       })
       stream.write('bad snappy frame data')
-      return stream.end()
+      stream.end()
     })
 
     it('should fail if a non-stream identifer frame is first', (done) => {
@@ -154,7 +141,7 @@ describe('UnsnappyStream', () => {
       badStreamIdentifier.writeUInt8(0x00, 0)
 
       stream.write(badStreamIdentifier)
-      return stream.end()
+      stream.end()
     })
 
     it('should silently consume stream header', (done) => {
@@ -165,7 +152,7 @@ describe('UnsnappyStream', () => {
       })
 
       stream.write(STREAM_IDENTIFIER)
-      return stream.end()
+      stream.end()
     })
   })
 
@@ -178,7 +165,7 @@ describe('UnsnappyStream', () => {
 
       stream.write(STREAM_IDENTIFIER)
       stream.write(frame)
-      return stream.end()
+      stream.end()
     })
   })
 
@@ -195,7 +182,7 @@ describe('UnsnappyStream', () => {
       })
 
       compressStream.write(data)
-      return compressStream.end()
+      compressStream.end()
     })
   })
 })
