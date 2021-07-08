@@ -1,14 +1,12 @@
-snappystream
-===========
+# snappystream
 
-A NodeJS library for supporting the
+A Node.js library for supporting the
 [Snappy](https://code.google.com/p/snappy/) framing format via streams. See
 the [Snappy Framing Format
 Description](https://github.com/google/snappy/blob/master/framing_format.txt) for
 details.
 
 [![Build Status](https://travis-ci.org/dudleycarr/snappystream.svg?branch=master)](https://travis-ci.org/dudleycarr/snappystream)
-
 
 [![NPM](https://nodei.co/npm/snappystream.svg?downloads=true)](https://nodei.co/npm/snappystream/)
 
@@ -27,7 +25,7 @@ const outStream = fs.createWriteStream('snappy_frame.txt')
 inStream.pipe(snappyStream).pipe(outStream)
 ```
 
-UnsnappyStream constructor takes an optional argument ```verifyChecksums```
+UnsnappyStream constructor takes an optional argument `verifyChecksums`
 which is false by default.
 
 ```javascript
@@ -37,7 +35,7 @@ const fs = require('fs')
 const inStream = fs.createReadStream('snappy_frame.txt')
 const unsnappyStream = new UnsnappyStream(true)
 
-unsnappyStream.on('end', function() {
+unsnappyStream.on('end', function () {
   console.log(unsnappyStream.read())
 })
 

@@ -99,12 +99,12 @@ describe('SnappyStream', () => {
     const data = new Array(100000).join('a')
     let compressedFrames = Buffer.alloc(0)
 
-    beforeEach((done) =>
+    beforeEach((done) => {
       compress(data, (err, compressedData) => {
         compressedFrames = compressedData.slice(10)
         return done(err)
       })
-    )
+    })
 
     it('should have the first chunk start with a compressed data chunk ID', () => {
       expect(compressedFrames.readUInt8(0)).toBe(0x00)

@@ -23,15 +23,15 @@
   },
   "homepage": "https://github.com/dudleycarr/snappystream",
   "dependencies": {
-    "async": "^3.2.0",
-    "fast-crc32c": "^2.0.0",
-    "int24": "0.0.1",
-    "snappy": "^6.3.5"
+    "@napi-rs/snappy": "^1.0.1",
+    "@node-rs/crc32": "^1.1.2",
+    "int24": "0.0.1"
   },
   "devDependencies": {
-    "eslint": "^7.22.0",
-    "jest": "^26.6.3",
-    "prettier": "^2.2.1"
+    "eslint": "^7.29.0",
+    "jest": "^27.0.6",
+    "snappy": "^6.3.5",
+    "prettier": "^2.3.2"
   },
   "engines": {
     "node": ">=10"
