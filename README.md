@@ -6,10 +6,6 @@ the [Snappy Framing Format
 Description](https://github.com/google/snappy/blob/master/framing_format.txt) for
 details.
 
-[![Build Status](https://travis-ci.org/dudleycarr/snappystream.svg?branch=master)](https://travis-ci.org/dudleycarr/snappystream)
-
-[![NPM](https://nodei.co/npm/snappystream.svg?downloads=true)](https://nodei.co/npm/snappystream/)
-
 Usage:
 SnappyStream and UnsnappyStream are
 [Transform streams](http://nodejs.org/api/stream.html#stream_class_stream_transform).
