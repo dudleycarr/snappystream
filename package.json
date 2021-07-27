@@ -1,10 +1,10 @@
 {
   "name": "snappystream",
-  "version": "1.5.0",
+  "version": "2.0.0",
   "description": "Framed Snappy streams",
   "main": "lib/snappystreams.js",
   "scripts": {
-    "lint": "eslint",
+    "lint": "eslint lib test",
     "test": "jest"
   },
   "repository": {
@@ -30,16 +30,10 @@
   "devDependencies": {
     "eslint": "^7.29.0",
     "jest": "^27.0.6",
-    "snappy": "^6.3.5",
-    "prettier": "^2.3.2"
+    "prettier": "^2.3.2",
+    "snappy": "^6.3.5"
   },
   "engines": {
-    "node": ">=10"
-  },
-  "standard": {
-    "env": [
-      "mocha",
-      "should"
-    ]
+    "node": ">=12"
   }
 }
