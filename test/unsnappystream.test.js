@@ -1,4 +1,3 @@
-const int24 = require('int24')
 const snappy = require('snappy')
 const {SnappyStream, UnsnappyStream} = require('../lib/snappystreams')
 
@@ -13,28 +12,20 @@ describe('UnsnappyStream', () => {
   let stream = null
   let frame = null
 
-  beforeEach((done) =>
-    snappy.compress(data, function (err, snappyData) {
-      if (err) {
-        return done(err)
-      }
+  beforeEach(async () => {
+    compressedData = await snappy.compress(data)
+    stream = new UnsnappyStream()
 
-      compressedData = snappyData
-      stream = new UnsnappyStream()
-
-      frame = Buffer.alloc(8)
-      // Frame ID
-      frame.writeUInt8(0x00, 0)
-      // Frame payload length
-      int24.writeUInt24LE(frame, 1, 4 + compressedData.length)
-      // Checksum (invalid)
-      frame.writeUInt32LE(0x00, 4)
-      // Frame with payload
-      frame = Buffer.concat([frame, compressedData])
-
-      return done()
-    })
-  )
+    frame = Buffer.alloc(8)
+    // Frame ID
+    frame.writeUInt8(0x00, 0)
+    // Frame payload length
+    frame.writeUIntLE(4 + compressedData.length, 1, 3)
+    // Checksum (invalid)
+    frame.writeUInt32LE(0x00, 4)
+    // Frame with payload
+    frame = Buffer.concat([frame, compressedData])
+  })
 
   describe('framePayload', () => {
     it('unpack a frame without failing checksum check', () => {
