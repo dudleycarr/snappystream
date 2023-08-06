@@ -1,25 +1,25 @@
-const snappy = require('snappy')
-const {SnappyStream} = require('../lib/snappystreams')
+import snappy from 'snappy'
+import {SnappyStream} from '../lib/snappystreams'
 
 const sentence = 'the quick brown fox jumped over the lazy dog.'
 const txt = [sentence, sentence, sentence].join('\n')
 
 // Generate a snappy stream from data. Return the snappy stream as a string.
-async function compress(data) {
-  let frames = []
+async function compress(data: string) {
+  const frames: Buffer[] = []
   const compressor = new SnappyStream()
   compressor.write(data)
   compressor.end()
 
   for await (const frame of compressor) {
-    frames.push(frame)
+    frames.push(frame as Buffer)
   }
   return Buffer.concat(frames)
 }
 
 describe('SnappyStream', () => {
   describe('stream identifier', () => {
-    let compressedFrames
+    let compressedFrames: Buffer
     beforeAll(async () => {
       compressedFrames = await compress(txt)
     })
@@ -38,8 +38,8 @@ describe('SnappyStream', () => {
   })
 
   describe('single compressed frame', () => {
-    let compressedData
-    let compressedFrames
+    let compressedData: Buffer
+    let compressedFrames: Buffer
     beforeAll(async () => {
       compressedData = await snappy.compress(txt)
       compressedFrames = (await compress(txt)).subarray(10)
@@ -68,8 +68,8 @@ describe('SnappyStream', () => {
   })
 
   describe('multiple compressed frames', () => {
-    let data
-    let compressedFrames
+    let data: string
+    let compressedFrames: Buffer
     beforeAll(async () => {
       // Two frames worth of data.
       data = new Array(100000).join('a')
@@ -98,7 +98,7 @@ describe('SnappyStream', () => {
       const frameSize = secondFrame.readUIntLE(1, 3)
       expect(frameSize).toBe(secondFrame.length - 4)
 
-      const frameData = await snappy.uncompress(secondFrame.slice(8))
+      const frameData = await snappy.uncompress(secondFrame.subarray(8))
       expect(frameData.toString()).toEqual(data.slice(65536))
     })
   })

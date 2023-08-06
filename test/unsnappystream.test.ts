@@ -1,5 +1,5 @@
-const snappy = require('snappy')
-const {SnappyStream, UnsnappyStream} = require('../lib/snappystreams')
+import snappy from 'snappy'
+import {SnappyStream, UnsnappyStream} from "../lib/snappystreams";
 
 const STREAM_IDENTIFIER = Buffer.from([
   0xff, 0x06, 0x00, 0x00, 0x73, 0x4e, 0x61, 0x50, 0x70, 0x59,
@@ -7,10 +7,10 @@ const STREAM_IDENTIFIER = Buffer.from([
 
 describe('UnsnappyStream', () => {
   let data = 'uncompressed frame data'
-  let compressedData = null
+  let compressedData: Buffer
+  let stream: UnsnappyStream
+  let frame: Buffer
   const validChecksum = 0xa3051056
-  let stream = null
-  let frame = null
 
   beforeEach(async () => {
     compressedData = await snappy.compress(data)
@@ -29,20 +29,20 @@ describe('UnsnappyStream', () => {
 
   describe('framePayload', () => {
     it('unpack a frame without failing checksum check', () => {
-      stream.verifyChecksum = false
+      stream.verifyChecksums = false
       return expect(stream.framePayload(frame).toString()).toBe(
         compressedData.toString()
       )
     })
 
     it('unpack a frame failing checksum check', () => {
-      stream.verifyChecksum = true
+      stream.verifyChecksums = true
       return expect(stream.framePayload.bind(frame)).toThrow()
     })
 
     it('unpack a frame without checksum check with valid checksum', () => {
       frame.writeUInt32LE(validChecksum, 4)
-      stream.verifyChecksum = true
+      stream.verifyChecksums = true
       return expect(stream.framePayload(frame).toString()).toBe(
         compressedData.toString()
       )
@@ -55,19 +55,19 @@ describe('UnsnappyStream', () => {
     })
 
     it('should return false given just the frame ID', () => {
-      expect(stream.hasFrame(frame.slice(0, 2))).toBe(false)
+      expect(stream.hasFrame(frame.subarray(0, 2))).toBe(false)
     })
 
     it('should return false given partial length', () => {
-      expect(stream.hasFrame(frame.slice(0, 4))).toBe(false)
+      expect(stream.hasFrame(frame.subarray(0, 4))).toBe(false)
     })
 
     it('should return false given just the length', () => {
-      expect(stream.hasFrame(frame.slice(0, 5))).toBe(false)
+      expect(stream.hasFrame(frame.subarray(0, 5))).toBe(false)
     })
 
     it('should return false given partial frame', () => {
-      expect(stream.hasFrame(frame.slice(0, 11))).toBe(false)
+      expect(stream.hasFrame(frame.subarray(0, 11))).toBe(false)
     })
 
     it('should return true given the whole frame', () => {
@@ -93,7 +93,7 @@ describe('UnsnappyStream', () => {
 
   describe('processChunks', () => {
     it('should return decompressed data for compressed chunks', async () => {
-      const chunks = [
+      const chunks: [number,number|null,Buffer][] = [
         [0x00, null, compressedData],
         [0x00, null, compressedData],
       ]
@@ -101,7 +101,7 @@ describe('UnsnappyStream', () => {
       expect(stream.read()).toEqual(Buffer.from(data + data))
     })
     it('should return decompressed data for multiple of chunks types', async () => {
-      const chunks = [
+      const chunks: [number,number|null,Buffer][] = [
         [0x00, null, compressedData],
         [0x01, null, Buffer.from('hello world')],
       ]
@@ -110,22 +110,22 @@ describe('UnsnappyStream', () => {
     })
   })
 
-  describe('stream identifer', () => {
+  describe('stream identifier', () => {
     it('should fail if stream starts with malformed data', (done) => {
       stream = new UnsnappyStream()
       stream.on('error', (err) => {
         expect(err).toBeTruthy()
-        return done()
+        done()
       })
       stream.write('bad snappy frame data')
       stream.end()
     })
 
-    it('should fail if a non-stream identifer frame is first', (done) => {
+    it('should fail if a non-stream identifier frame is first', (done) => {
       stream = new UnsnappyStream()
       stream.on('error', (err) => {
         expect(err).toBeTruthy()
-        return done()
+        done()
       })
 
       const badStreamIdentifier = Buffer.from(STREAM_IDENTIFIER)
@@ -139,7 +139,7 @@ describe('UnsnappyStream', () => {
       stream = new UnsnappyStream()
       stream.on('finish', () => {
         expect(stream.read()).toBeFalsy()
-        return done()
+        done()
       })
 
       stream.write(STREAM_IDENTIFIER)
@@ -150,8 +150,9 @@ describe('UnsnappyStream', () => {
   describe('stream processing', () => {
     it('should return the uncompressed data via read', (done) => {
       stream.on('finish', () => {
-        expect(stream.read().toString()).toBe(data)
-        return done()
+        const b = stream.read() as Buffer
+        expect(b.toString()).toBe(data)
+        done()
       })
 
       stream.write(STREAM_IDENTIFIER)
@@ -168,8 +169,9 @@ describe('UnsnappyStream', () => {
 
       compressStream.pipe(decompressStream)
       decompressStream.on('finish', () => {
-        expect(decompressStream.read().toString()).toBe(data)
-        return done()
+        const b = decompressStream.read() as Buffer
+        expect(b.toString()).toBe(data)
+        done()
       })
 
       compressStream.write(data)

@@ -1,13 +1,13 @@
-const {compress, uncompress} = require('snappy')
-const {crc32c} = require('@node-rs/crc32')
-const stream = require('stream')
+import {compress, uncompress} from 'snappy'
+import {crc32c} from '@node-rs/crc32'
+import stream from 'stream'
 
 const CHUNKS = {
   streamIdentifier: 0xff,
   compressedData: 0x00,
   uncompressedData: 0x01,
   padding: 0xfe,
-  unskippable: (v) => v >= 0x02 && v <= 0x7f,
+  unskippable: (v: number) => v >= 0x02 && v <= 0x7f ? v : -1,
 }
 
 const STREAM_IDENTIFIER = Buffer.from([
@@ -15,15 +15,15 @@ const STREAM_IDENTIFIER = Buffer.from([
 ])
 const MAX_FRAME_DATA_SIZE = 65536
 
-const checksumMask = function (data) {
+const checksumMask = (data: Buffer | string) => {
   const c = crc32c(data)
   const result = new Uint32Array(1)
   result[0] = ((c >>> 15) | (c * Math.pow(2, 17))) + 0xa282ead8
   return result[0]
 }
 
-class SnappyStream extends stream.Transform {
-  constructor(options) {
+export class SnappyStream extends stream.Transform {
+  constructor(options?: stream.TransformOptions) {
     super(options)
     this.push(STREAM_IDENTIFIER)
   }
@@ -31,12 +31,12 @@ class SnappyStream extends stream.Transform {
   // No buffering of data before producing a compressed frame. If the data size
   // exceeds the size of a frame, then it will automatically be split across
   // frames per the Snappy frame spec.
-  _transform(data, encoding, callback) {
+  _transform(data: Buffer | string, _: BufferEncoding, callback: (err?: Error) => void) {
     // Split data if need be into chunks no larger than the maximum size for
     // a frame.
     const out = Buffer.from(data)
 
-    const dataChunks = []
+    const dataChunks: Buffer[] = []
     for (let offset = 0; offset < out.length / MAX_FRAME_DATA_SIZE; offset++) {
       const start = offset * MAX_FRAME_DATA_SIZE
       const end = start + MAX_FRAME_DATA_SIZE
@@ -44,10 +44,10 @@ class SnappyStream extends stream.Transform {
     }
     Promise.all(dataChunks.map(chunk => compress(chunk)))
       .then((compressedDataChunks) => {
-        const frameChunks = []
+        const frameChunks: Buffer[] = []
         for (let i = 0; i < dataChunks.length; i++) {
-          const chunkData = dataChunks[i]
-          const frameData = compressedDataChunks[i]
+          const chunkData = dataChunks[i]!
+          const frameData = compressedDataChunks[i]!
 
           const frameStart = Buffer.alloc(8)
 
@@ -72,13 +72,17 @@ class SnappyStream extends stream.Transform {
         this.push(Buffer.concat(frameChunks))
         return callback()
       })
-      .catch((err) => {
+      .catch((err: Error) => {
         callback(err)
       })
   }
 }
 
-class UnsnappyStream extends stream.Transform {
+export class UnsnappyStream extends stream.Transform {
+  public verifyChecksums: boolean;
+  private identifierFound: boolean;
+  private frameBuffer: Buffer | null;
+
   constructor(verifyChecksums = false, options = {}) {
     super(options)
     this.verifyChecksums = verifyChecksums
@@ -88,79 +92,78 @@ class UnsnappyStream extends stream.Transform {
 
   // Returns snappy compressed payload. Throws an error if the checksum fails
   // provided stream is checking checksums.
-  framePayload(frame) {
+  framePayload(frame: Buffer) {
     const frameLength = frame.readUIntLE(1, 3)
     return frame.subarray(8, frameLength + 4)
   }
 
-  frameMask(frame) {
+  frameMask(frame: Buffer) {
     return frame.readUInt32LE(4)
   }
 
   // Data contains at least one full frame.
-  hasFrame(data) {
+  hasFrame(data: Buffer) {
     return data.length > 4 && data.readUIntLE(1, 3) + 4 <= data.length
   }
 
   // Return the buffer starting at the next frame. It assumes that a full frame
   // exists within data.
-  toNextFrame(data) {
+  toNextFrame(data: Buffer) {
     const frameLength = data.readUIntLE(1, 3)
     return data.subarray(4 + frameLength)
   }
 
-  verify(mask, data) {
+  verify(mask: number | null, data: Buffer | string) {
     if (this.verifyChecksums && checksumMask(data) !== mask) {
-      return Promise.reject(new Error('Frame failed checksum'))
+      throw new Error('Frame failed checksum')
     }
-
-    return Promise.resolve(data)
   }
 
-  processChunks(chunks, done = () => {}) {
+  async processChunks(chunks: [number, number|null, Buffer][], done?: (err?: Error) => void) {
     const verify = this.verify.bind(this)
-    return Promise.all(
-      chunks.map(async (chunk) => {
-        const [frameType, mask, payload] = chunk
-        const uncompressedData = frameType === CHUNKS.uncompressedData ? payload : await uncompress(payload)
-        await verify(mask, uncompressedData)
-        return uncompressedData
-      })
-    ).then((data) => {
-      this.push(Buffer.concat(data))
-      done()
-    }).catch((err) => {
-      return this.emit('error', err)
-    })
+    try {
+      const uncompressFrames = await Promise.all(
+        chunks.map(async (chunk) => {
+          const [frameType, mask, payload] = chunk
+          const uncompressedData = frameType === CHUNKS.uncompressedData ? payload : await uncompress(payload)
+          verify(mask, uncompressedData)
+          return Buffer.isBuffer(uncompressedData) ? uncompressedData : Buffer.from(uncompressedData)
+        })
+      )
+      this.push(Buffer.concat(uncompressFrames))
+      if (done) {
+        done()
+      }
+    } catch (err) {
+      this.emit('error', err)
+    }
   }
 
-  _transform(data, encoding, done) {
+  _transform(data: Buffer | string, encoding: BufferEncoding | null, done: (err?: Error) => void) {
     // Tuples of frame ID and frame payload
-    const chunks = []
+    const chunks: [number,number|null,Buffer][] = []
 
-    if (encoding) {
-      data = Buffer.from(data, encoding)
-    }
+    let _data = encoding ? Buffer.from(data as string, encoding) : data as Buffer
     if (this.frameBuffer) {
-      data = Buffer.concat([this.frameBuffer, data])
+      _data = Buffer.concat([this.frameBuffer, _data])
     }
     this.frameBuffer = null
 
     if (
       !this.identifierFound &&
-      data.readUInt8(0) !== CHUNKS.streamIdentifier
+      _data.readUInt8(0) !== CHUNKS.streamIdentifier
     ) {
       return this.emit('error', new Error('Missing snappy stream identifier'))
     }
 
     // Loop only while a full frame is available within data.
-    while (this.hasFrame(data)) {
-      const frameId = data.readUInt8(0)
+    while (this.hasFrame(_data)) {
+      const frameId = _data.readUInt8(0)
 
       try {
         switch (frameId) {
           case CHUNKS.streamIdentifier:
-            if (data.slice(0, 10).toString() !== STREAM_IDENTIFIER.toString()) {
+            if (_data.subarray(0, 10).toString() !== STREAM_IDENTIFIER.toString()) {
               return this.emit('error', new Error('Invalid stream identifier'))
             }
             this.identifierFound = true
@@ -168,15 +171,15 @@ class UnsnappyStream extends stream.Transform {
           case CHUNKS.compressedData:
             chunks.push([
               CHUNKS.compressedData,
-              this.frameMask(data),
-              this.framePayload(data),
+              this.frameMask(_data),
+              this.framePayload(_data),
             ])
             break
           case CHUNKS.uncompressedData:
             chunks.push([
               CHUNKS.uncompressedData,
-              this.frameMask(data),
-              this.framePayload(data),
+              this.frameMask(_data),
+              this.framePayload(_data),
             ])
             break
           case CHUNKS.unskippable(frameId):
@@ -186,11 +189,11 @@ class UnsnappyStream extends stream.Transform {
         return this.emit('error', err)
       }
 
-      data = this.toNextFrame(data)
+      _data = this.toNextFrame(_data)
     }
 
-    if (data.length) {
-      this.frameBuffer = data
+    if (_data.length) {
+      this.frameBuffer = _data
     }
 
     if (chunks.length) {
@@ -200,12 +203,8 @@ class UnsnappyStream extends stream.Transform {
     }
   }
 
-  _flush(done) {
-    if (this.frameBuffer && this.frameBuffer.length) {
-      done(new Error('Failed to decompress Snappy stream'))
-    }
-    done()
+  _flush(done: (err?: Error) => void) {
+    const err = this.frameBuffer?.length ? new Error('Failed to decompress Snappy stream') : undefined
+    done(err)
   }
 }
-
-module.exports = {SnappyStream, UnsnappyStream}
