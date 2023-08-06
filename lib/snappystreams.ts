@@ -7,7 +7,7 @@ const CHUNKS = {
   compressedData: 0x00,
   uncompressedData: 0x01,
   padding: 0xfe,
-  unskippable: (v: number) => v >= 0x02 && v <= 0x7f ? v : -1,
+  unskippable: (v: number) => (v >= 0x02 && v <= 0x7f ? v : -1),
 }
 
 const STREAM_IDENTIFIER = Buffer.from([
@@ -31,7 +31,11 @@ export class SnappyStream extends stream.Transform {
   // No buffering of data before producing a compressed frame. If the data size
   // exceeds the size of a frame, then it will automatically be split across
   // frames per the Snappy frame spec.
-  _transform(data: Buffer | string, _: BufferEncoding, callback: (err?: Error) => void) {
+  _transform(
+    data: Buffer | string,
+    _: BufferEncoding,
+    callback: (err?: Error) => void
+  ) {
     // Split data if need be into chunks no larger than the maximum size for
     // a frame.
     const out = Buffer.from(data)
@@ -42,7 +46,7 @@ export class SnappyStream extends stream.Transform {
       const end = start + MAX_FRAME_DATA_SIZE
       dataChunks.push(out.subarray(start, end))
     }
-    Promise.all(dataChunks.map(chunk => compress(chunk)))
+    Promise.all(dataChunks.map((chunk) => compress(chunk)))
       .then((compressedDataChunks) => {
         const frameChunks: Buffer[] = []
         for (let i = 0; i < dataChunks.length; i++) {
@@ -79,9 +83,9 @@ export class SnappyStream extends stream.Transform {
 }
 
 export class UnsnappyStream extends stream.Transform {
-  public verifyChecksums: boolean;
-  private identifierFound: boolean;
-  private frameBuffer: Buffer | null;
+  public verifyChecksums: boolean
+  private identifierFound: boolean
+  private frameBuffer: Buffer | null
 
   constructor(verifyChecksums = false, options = {}) {
     super(options)
@@ -119,15 +123,23 @@ export class UnsnappyStream extends stream.Transform {
     }
   }
 
-  async processChunks(chunks: [number, number|null, Buffer][], done?: (err?: Error) => void) {
+  async processChunks(
+    chunks: [number, number | null, Buffer][],
+    done?: (err?: Error) => void
+  ) {
     const verify = this.verify.bind(this)
     try {
       const uncompressFrames = await Promise.all(
         chunks.map(async (chunk) => {
           const [frameType, mask, payload] = chunk
-          const uncompressedData = frameType === CHUNKS.uncompressedData ? payload : await uncompress(payload)
+          const uncompressedData =
+            frameType === CHUNKS.uncompressedData
+              ? payload
+              : await uncompress(payload)
           verify(mask, uncompressedData)
-          return Buffer.isBuffer(uncompressedData) ? uncompressedData : Buffer.from(uncompressedData)
+          return Buffer.isBuffer(uncompressedData)
+            ? uncompressedData
+            : Buffer.from(uncompressedData)
         })
       )
       this.push(Buffer.concat(uncompressFrames))
@@ -139,11 +151,17 @@ export class UnsnappyStream extends stream.Transform {
     }
   }
 
-  _transform(data: Buffer | string, encoding: BufferEncoding | null, done: (err?: Error) => void) {
+  _transform(
+    data: Buffer | string,
+    encoding: BufferEncoding | null,
+    done: (err?: Error) => void
+  ) {
     // Tuples of frame ID and frame payload
-    const chunks: [number,number|null,Buffer][] = []
+    const chunks: [number, number | null, Buffer][] = []
 
-    let _data = encoding ? Buffer.from(data as string, encoding) : data as Buffer
+    let _data = encoding
+      ? Buffer.from(data as string, encoding)
+      : (data as Buffer)
     if (this.frameBuffer) {
       _data = Buffer.concat([this.frameBuffer, _data])
     }
@@ -163,7 +181,9 @@ export class UnsnappyStream extends stream.Transform {
       try {
         switch (frameId) {
           case CHUNKS.streamIdentifier:
-            if (_data.subarray(0, 10).toString() !== STREAM_IDENTIFIER.toString()) {
+            if (
+              _data.subarray(0, 10).toString() !== STREAM_IDENTIFIER.toString()
+            ) {
               return this.emit('error', new Error('Invalid stream identifier'))
             }
             this.identifierFound = true
@@ -183,7 +203,10 @@ export class UnsnappyStream extends stream.Transform {
             ])
             break
           case CHUNKS.unskippable(frameId):
-            return this.emit('error', new Error('Encountered unskippable frame'))
+            return this.emit(
+              'error',
+              new Error('Encountered unskippable frame')
+            )
         }
       } catch (err) {
         return this.emit('error', err)
@@ -204,7 +227,9 @@ export class UnsnappyStream extends stream.Transform {
   }
 
   _flush(done: (err?: Error) => void) {
-    const err = this.frameBuffer?.length ? new Error('Failed to decompress Snappy stream') : undefined
+    const err = this.frameBuffer?.length
+      ? new Error('Failed to decompress Snappy stream')
+      : undefined
     done(err)
   }
 }

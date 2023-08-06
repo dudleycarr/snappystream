@@ -1,5 +1,5 @@
 import snappy from 'snappy'
-import {SnappyStream, UnsnappyStream} from "../lib/snappystreams";
+import {SnappyStream, UnsnappyStream} from '../lib/snappystreams'
 
 const STREAM_IDENTIFIER = Buffer.from([
   0xff, 0x06, 0x00, 0x00, 0x73, 0x4e, 0x61, 0x50, 0x70, 0x59,
@@ -93,7 +93,7 @@ describe('UnsnappyStream', () => {
 
   describe('processChunks', () => {
     it('should return decompressed data for compressed chunks', async () => {
-      const chunks: [number,number|null,Buffer][] = [
+      const chunks: [number, number | null, Buffer][] = [
         [0x00, null, compressedData],
         [0x00, null, compressedData],
       ]
@@ -101,7 +101,7 @@ describe('UnsnappyStream', () => {
       expect(stream.read()).toEqual(Buffer.from(data + data))
     })
     it('should return decompressed data for multiple of chunks types', async () => {
-      const chunks: [number,number|null,Buffer][] = [
+      const chunks: [number, number | null, Buffer][] = [
         [0x00, null, compressedData],
         [0x01, null, Buffer.from('hello world')],
       ]
