@@ -6,13 +6,16 @@
     "jest/globals": true
   },
   "extends": [
-    "eslint:recommended"
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended-type-checked",
+    "plugin:@typescript-eslint/stylistic-type-checked"
   ],
+  "parser": "@typescript-eslint/parser",
   "parserOptions": {
-    "ecmaVersion": 11,
-    "sourceType": "module"
+    "project": "./tsconfig.json"
   },
-  "plugins": ["jest"],
+  "plugins": ["@typescript-eslint", "jest"],
+  "root": true,
   "rules": {},
   "settings": {}
 }

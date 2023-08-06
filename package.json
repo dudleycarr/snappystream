@@ -2,10 +2,13 @@
   "name": "snappystream",
   "version": "2.1.0",
   "description": "Framed Snappy streams",
-  "main": "lib/snappystreams.js",
+  "main": "dist/snappystreams.js",
+  "module": "dist/snappystreams.mjs",
+  "types": "dist/snappystreams.d.ts",
   "scripts": {
     "lint": "eslint lib test",
-    "test": "jest"
+    "test": "jest",
+    "build": "tsup lib/snappystreams.ts --format cjs,esm --dts"
   },
   "repository": {
     "type": "git",
@@ -28,10 +31,17 @@
     "snappy": "^7.2.2"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.3",
+    "@types/node": "^20.4.8",
+    "@typescript-eslint/eslint-plugin": "^6.2.1",
+    "@typescript-eslint/parser": "^6.2.1",
     "eslint": "^8.46.0",
     "eslint-plugin-jest": "^27.2.3",
     "jest": "^29.6.2",
-    "prettier": "^3.0.1"
+    "prettier": "^3.0.1",
+    "ts-jest": "^29.1.1",
+    "tsup": "^7.2.0",
+    "typescript": "^5.1.6"
   },
   "engines": {
     "node": ">=14"
