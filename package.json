@@ -29,7 +29,6 @@
   "homepage": "https://github.com/dudleycarr/snappystream",
   "dependencies": {
     "@node-rs/crc32": "^1.7.2",
-    "int24": "0.0.1",
     "snappy": "^7.2.2"
   },
   "devDependencies": {
