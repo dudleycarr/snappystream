@@ -52,6 +52,7 @@
     "node": ">=14"
   },
   "publishConfig": {
+    "access": "public",
     "provenance": true
   }
 }
