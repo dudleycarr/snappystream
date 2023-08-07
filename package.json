@@ -1,6 +1,6 @@
 {
   "name": "snappystream",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Framed Snappy streams",
   "main": "dist/snappystreams.js",
   "module": "dist/snappystreams.mjs",
