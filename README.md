@@ -1,4 +1,6 @@
 # snappystream
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdudleycarr%2Fsnappystream.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdudleycarr%2Fsnappystream?ref=badge_shield)
+
 
 A Node.js library for supporting the
 [Snappy](https://code.google.com/p/snappy/) framing format via streams. See
@@ -37,3 +39,7 @@ unsnappyStream.on('end', function () {
 
 inStream.pipe(unsnappyStream)
 ```
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdudleycarr%2Fsnappystream.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdudleycarr%2Fsnappystream?ref=badge_large)
